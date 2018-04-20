@@ -2,11 +2,12 @@
 #include <map>
 #include <chrono>
 #include <iostream>
+#include <vector>
 
 #include "cocos2d.h"
 #include "HillClimbLayer.h"
 #include "HillClimbUtility.h"
-// Add missing includes here.
+#include "HillClimbRoad.h"
 
 namespace hillclimb {
 
@@ -35,7 +36,13 @@ namespace hillclimb {
         this->addChild(this->carSprite, 0);
     
         //Initialize car field here. Arguments: carStartX, carStartY, spriteScale
+        actualCar = std::unique_ptr<car::HillClimbCar>(new car::HillClimbCar(carStartX, carStartY, spriteScale));
         //Initialize road field here. Arguments: winWidth, winHeight
+        actualRoad = std::unique_ptr<road::HillClimbRoad>(new road::HillClimbRoad(winWidth, winHeight));
+        actualRoad->addPart(carStartX - 100, carStartY -100);
+        actualRoad->addPart(carStartX + 100,  carStartY - 200);
+        actualRoad->addPart(carStartX + 300,  carStartY - 100);
+        std::cout << "jee\n";
         this->generateRoadParts();
 
         auto eventListener = cocos2d::EventListenerKeyboard::create();
@@ -61,22 +68,26 @@ namespace hillclimb {
     }
 
     void HillClimbLayer::generateRoadParts() {
-        //MIN_ROAD_SIZE = 2
-        //get part count of road
-        //get part coordinate pairs of road
+        int MIN_ROAD_SIZE = 3;
+        int roadCount = actualRoad->getPartCount();
+        std::cout << roadCount << "\n";
+                
+        std::vector<std::vector<double>> roadCoordPairs = actualRoad->getPartCoords();
     
-        //if partCount < MIN_ROAD_SIZE
-            //return
+        if(roadCount < MIN_ROAD_SIZE){
+            return;
+        }
 
         auto drawNode = cocos2d::DrawNode::create();
         drawNode->setName("drawNode");
-        /*Loop through partCoordPairs:
-            beginCoords = partCoordPair at current index
-            endCoords = partCoordPair at current index + 1
-            drawNode->drawLine(cocos2d::Point(x of beginCoords, y of beginCoords),
-            cocos2d::Point(x of endCoords, y of endCoords),
+        for(int i = 0; i < roadCount - 1; ++i){
+            std::vector<double> beginCoords = roadCoordPairs[i];
+            std::vector<double> endCoords = roadCoordPairs[i + 1];
+            std::cout << beginCoords[0];
+            drawNode->drawLine(cocos2d::Point(beginCoords[0], beginCoords[1]),
+            cocos2d::Point(endCoords[0], endCoords[1]),
             cocos2d::Color4F::WHITE);
-        */
+        }
         this->addChild(drawNode);
     }
 
@@ -86,14 +97,24 @@ namespace hillclimb {
 
     void HillClimbLayer::update(float dt) {
         cocos2d::Node::update(dt);
+        double throttle;
         if (isKeyPressed(cocos2d::EventKeyboard::KeyCode::KEY_RIGHT_ARROW)) {
-            //Speed the car up with the updateThrottle method
+            throttle = actualCar->updateThrottle(dt * 1000);
+            //actualRoad->move(100 * dt);
         } else if (isKeyPressed(cocos2d::EventKeyboard::KeyCode::KEY_LEFT_ARROW)) {
+            throttle = actualCar->updateThrottle(-dt * 1000);
             //Put the brake on with the updateThrottle method
-        } else {
-            //Slow the car down with the updateThrottle method
+        } else if (throttle > 0){
+             throttle = actualCar->updateThrottle(-dt * 200);
         }
-
+            //Slow the car down with the updateThrottle method
+        if(throttle < 0){
+            throttle = 0;
+        }
+        else if(throttle > 400){
+            throttle = 400;
+        }
+        actualRoad->move(throttle * dt);
         /*Get car transition
           Get car angle. Use std::fmod for it with STRAIGHT_ANGLE as divisor.
     
@@ -106,6 +127,8 @@ namespace hillclimb {
                Update the car with road and dt as arguments
                Move the road with carTransition as argument
           }*/
+        actualRoad->deletePartsBehind();
+        actualRoad->generatePartsAhead();
         this->deleteRoadParts();
         this->generateRoadParts();
         //Set carSprite position with setPositionY(y). The argument y should be the y position of the car

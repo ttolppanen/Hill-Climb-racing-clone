@@ -1,12 +1,36 @@
-/*
+#include "HillClimbCar.h"
+#include "HillClimbRoad.h"
 
-Includes
+namespace car{
 
-namespace
+    HillClimbCar::HillClimbCar(const double x, const double y, const double SCALE)
+    :x(x), y(y), SCALE(SCALE){}
+    
+    double HillClimbCar::updateThrottle(double dtthrottle){
+        throttle += dtthrottle;
+        if(throttle < 0){
+            throttle = 0;
+        }
+        else if(throttle > 400){
+            throttle = 400;
+        }
+        return throttle;
+    }
+    void HillClimbCar::update(road::HillClimbRoad road, double dt) {
+        /*update road parts touching
+        update wheels
+        update angular acceleration
+        update angular velocity
+        update angle
+        update accelerations
+        update velocity x
+        update velocity y
+        update pos y*/
+    }
 
-    HillClimbCar constructor
-
-    function updateVelocityX
+    
+    /*void HillClimbCar::updateVelocityX(){
+    }
 
     function updatePosY
 
@@ -58,7 +82,7 @@ namespace
         update state of wheels
     }
 
-    updateAccelerations(double dt) {
+    HillClimbCar::updateAccelerations(double dt) {
         An algorithm for updating the horizontal and vertical acceleration of the car. Lots of physics and math.
         You can use this or come up with something better.
 
@@ -109,9 +133,9 @@ namespace
 
     function getAngle
 
-    function touchesRoad
+    function touchesRoad*/
 
-    update(road, dt) {
+    /*update(road, dt) {
         update road parts touching
         update wheels
         update angular acceleration
@@ -126,5 +150,5 @@ namespace
    reset {
         fundamental type fields back to their original values
         clear previous state of wheels
-   }
-*/
+   }*/
+}

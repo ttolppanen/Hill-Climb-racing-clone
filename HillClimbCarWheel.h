@@ -1,14 +1,15 @@
-/* Guards
+/*#ifndef __HILLWHEEL_H__
+#define __HILLWHEEL_H__
   
-Includes
+#include
 
-Namespace
+namespace wheel{
 
-    struct RoadPartTouching
-        wheelSubmersion (how much wheel has submerged beneath the surface of the road)
-        slope
-
-    class CarWheel
+    struct RoadPartTouching{
+        double wheelSubmersion;
+        double slope;
+    }
+    class CarWheel{
       public
         CarWheel(x_offset, y_offset, radius)
         getForceX()
@@ -31,6 +32,7 @@ Namespace
         updatePosY(carY, carAngle)
         updateRoadPartsTouching(road)
         void updateForces(throttle)
+    };
+}
 
-Guards end
-*/
+#endif*/
